@@ -1,6 +1,8 @@
+
+
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';  
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 class Login extends StatefulWidget {
   Login({Key key}):super(key:key);
@@ -9,6 +11,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final String userName = '';
+  final String passWord = '';
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
 
@@ -20,6 +24,30 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+
+    save() async{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString(userName, username.text.toString());
+      prefs.setString(passWord, password.text.toString());
+    }
+
+    //对话框测试
+    Future<bool> showDeleteConfirmDialog()
+    {
+      return showDialog<bool>(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title:Text('警告'),
+            content:Text("账号或密码错误"),
+            actions: [
+              FlatButton(child: Text("确认"),onPressed: ()=>Navigator.of(context).pop()),
+          
+            ],
+          );
+        }
+      );
+    } 
     
     return Scaffold(
 
@@ -53,7 +81,7 @@ class _LoginState extends State<Login> {
                 Container(
                   margin: EdgeInsets.only(top:60.0),
                   child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24.0),                          
+                            padding: EdgeInsets.fromLTRB(10,0,24,0),                          
                             child:Form(
                               key:_formKey,
                               autovalidate: false,
@@ -87,7 +115,7 @@ class _LoginState extends State<Login> {
                                                                         value: "3号仓",
                                                                       ),
                                                                     ],
-                                                                    hint: Text("请选择"),
+                                                                    hint: Text("仓库"),
                                                                     onChanged: (value){
                                                                         setState(() {
                                                                           _selected = value;
@@ -176,16 +204,25 @@ class _LoginState extends State<Login> {
                       color:Color(0xFFB51F22),
                       textColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-                      onPressed: (){
+                      onPressed: () async{
                         if((_formKey.currentState as FormState).validate())
                         {
                           if(username.text=="111"&&password.text=="123456")
                           {
-                            Navigator.pushNamed(context,'/wms');
+                            save();
+                            Navigator.pushNamed(context,'/rgc',arguments: username.text.toString());
                           }
                           else
                           {
-                            Alert(context: context, title: "RFLUTTER", desc: "error").show();
+                             //一个吐司样例
+                              Fluttertoast.showToast(
+                                msg:"账号或密码错误！",
+                                gravity: ToastGravity.CENTER,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                                                                
+                              );
                           }
                         }
                       },
@@ -212,3 +249,4 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
